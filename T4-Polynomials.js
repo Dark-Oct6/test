@@ -117,8 +117,8 @@ var init = () => {
 
     {
         terms = theory.createMilestoneUpgrade(0, 4);
-        terms.getDescription = (_) => Localization.getUpgradeAddTermDesc(terms.level == 0 ? "q^2" : terms.level == 1 ? "q^3" : terms.level = 2 ? "q^4" : "q^5");
-        terms.getInfo = (_) => Localization.getUpgradeAddTermInfo(terms.level == 0 ? "q^2" : terms.level == 1 ? "q^3" : terms.level = 2 ? "q^4" : "q^5");
+        terms.getDescription = (_) => Localization.getUpgradeAddTermDesc(terms.level == 0 ? "q^2" : terms.level == 1 ? "q^3" : terms.level == 2 ? "q^4" : "q^5");
+        terms.getInfo = (_) => Localization.getUpgradeAddTermInfo(terms.level == 0 ? "q^2" : terms.level == 1 ? "q^3" : terms.level == 2 ? "q^4" : "q^5");
         terms.boughtOrRefunded = (_) => { theory.invalidatePrimaryEquation(); updateAvailability(); }
     }
 
