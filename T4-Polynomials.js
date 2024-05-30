@@ -143,7 +143,7 @@ var updateAvailability = () => {
     c4.isAvailable = terms.level > 0;
     c5.isAvailable = terms.level > 1;
     c6.isAvailable = terms.level > 2;
-    //c7.isAvailable = terms.level > 3;
+    c7.isAvailable = terms.level > 3 ? true : false;
 }
 
 var tick = (elapsedTime, multiplier) => {
