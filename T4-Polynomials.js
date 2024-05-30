@@ -12,7 +12,7 @@ var version = 1;
 
 var q = BigNumber.ZERO;
 var q1, q2;
-var c1, c2, c3, c4, c5, c6;
+var c1, c2, c3, c4, c5, c6, c7;
 var terms, c1Exp, multQDot;
 
 var init = () => {
@@ -77,11 +77,21 @@ var init = () => {
         c6.isAvailable = false;
     }
 
+    // c7
+    {
+        let getDesc = (level) => "c_7=10^{" + level + "}";
+        let getInfo = (level) => "c_7=" + getC7(level).toString(0);
+        c7 = theory.createUpgrade(6, currency, new ExponentialCost(1e14, Math.log2(100)));
+        c7.getDescription = (amount) => Utils.getMath(getDesc(c7.level));
+        c7.getInfo = (amount) => Utils.getMathTo(getInfo(c7.level), getInfo(c7.level + amount));
+        c7.isAvailable = false;
+    }
+
     // q1
     {
         let getDesc = (level) => "q_1=" + getQ1(level).toString(0);
         let getInfo = (level) => "q_1=" + getQ1(level).toString(0);
-        q1 = theory.createUpgrade(6, currency, new ExponentialCost(1000, Math.log2(100)));
+        q1 = theory.createUpgrade(7, currency, new ExponentialCost(1000, Math.log2(100)));
         q1.getDescription = (amount) => Utils.getMath(getDesc(q1.level));
         q1.getInfo = (amount) => Utils.getMathTo(getInfo(q1.level), getInfo(q1.level + amount));
     }
@@ -90,14 +100,14 @@ var init = () => {
     {
         let getDesc = (level) => "q_2=2^{" + level + "}";
         let getInfo = (level) => "q_2=" + getQ2(level).toString(0);
-        q2 = theory.createUpgrade(7, currency, new ExponentialCost(1e4, Math.log2(1000)));
+        q2 = theory.createUpgrade(8, currency, new ExponentialCost(1e4, Math.log2(1000)));
         q2.getDescription = (amount) => Utils.getMath(getDesc(q2.level));
         q2.getInfo = (amount) => Utils.getMathTo(getInfo(q2.level), getInfo(q2.level + amount));
     }
 
     /////////////////////
     // Permanent Upgrades
-    theory.createPublicationUpgrade(0, currency, 1e3);
+    theory.createPublicationUpgrade(0, currency, 1e0);
     theory.createBuyAllUpgrade(1, currency, 1e13);
     theory.createAutoBuyerUpgrade(2, currency, 1e30);
 
@@ -106,21 +116,21 @@ var init = () => {
     theory.setMilestoneCost(new LinearCost(25, 25));
 
     {
-        terms = theory.createMilestoneUpgrade(0, 3);
-        terms.getDescription = (_) => Localization.getUpgradeAddTermDesc(terms.level == 0 ? "q^2" : terms.level == 1 ? "q^3" : "q^4");
-        terms.getInfo = (_) => Localization.getUpgradeAddTermInfo(terms.level == 0 ? "q^2" : terms.level == 1 ? "q^3" : "q^4");
+        terms = theory.createMilestoneUpgrade(0, 4);
+        terms.getDescription = (_) => Localization.getUpgradeAddTermDesc(terms.level == 0 ? "q^2" : terms.level == 1 ? "q^3" : terms.level = 2 ? "q^4" : "q^5");
+        terms.getInfo = (_) => Localization.getUpgradeAddTermInfo(terms.level == 0 ? "q^2" : terms.level == 1 ? "q^3" : terms.level = 2 ? "q^4" : "q^5");
         terms.boughtOrRefunded = (_) => { theory.invalidatePrimaryEquation(); updateAvailability(); }
     }
 
     {
         c1Exp = theory.createMilestoneUpgrade(1, 1);
-        c1Exp.description = Localization.getUpgradeIncCustomExpDesc("c_1", "0.15");
-        c1Exp.info = Localization.getUpgradeIncCustomExpInfo("c_1", "0.15");
+        c1Exp.description = Localization.getUpgradeIncCustomExpDesc("c_1", "0.25");
+        c1Exp.info = Localization.getUpgradeIncCustomExpInfo("c_1", "0.25");
         c1Exp.boughtOrRefunded = (_) => theory.invalidatePrimaryEquation();
     }
 
     {
-        multQDot = theory.createMilestoneUpgrade(2, 3);
+        multQDot = theory.createMilestoneUpgrade(2, 30);
         multQDot.description = Localization.getUpgradeMultCustomDesc("\\dot{q}", "2");
         multQDot.info = Localization.getUpgradeMultCustomInfo("\\dot{q}", "2");
         multQDot.boughtOrRefunded = (_) => theory.invalidateSecondaryEquation();
@@ -133,6 +143,7 @@ var updateAvailability = () => {
     c4.isAvailable = terms.level > 0;
     c5.isAvailable = terms.level > 1;
     c6.isAvailable = terms.level > 2;
+    c7.isAvailable = terms.level > 3;
 }
 
 var tick = (elapsedTime, multiplier) => {
@@ -146,6 +157,7 @@ var tick = (elapsedTime, multiplier) => {
     let vc4 = getC4(c4.level);
     let vc5 = getC5(c5.level);
     let vc6 = getC6(c6.level);
+    let vc7 = getC7(c7.level);
     let q1q2 = vq1 * vq2;
 
     let p = (q + BigNumber.ONE).Square() - BigNumber.ONE;
@@ -153,15 +165,17 @@ var tick = (elapsedTime, multiplier) => {
     let qe2 = q * q;
     let qe3 = qe2 * q;
     let qe4 = qe3 * q;
+    let qe5 = qe4 * q;
 
     let term1 = vc1.pow(vc1Exp) * vc2;
     let term2 = vc3 * q;
     let term3 = terms.level > 0 ? vc4 * qe2 : BigNumber.ZERO;
     let term4 = terms.level > 1 ? vc5 * qe3 : BigNumber.ZERO;
     let term5 = terms.level > 2 ? vc6 * qe4 : BigNumber.ZERO;
+    let term6 = term1.level > 3 ? vc7 * qe5 : BigNumber.ZERO;
     let bonus = theory.publicationMultiplier;
 
-    currency.value += bonus * dt * (term1 + term2 + term3 + term4 + term5);
+    currency.value += bonus * dt * (term1 + term2 + term3 + term4 + term5 + term6);
 
     theory.invalidateTertiaryEquation();
 }
@@ -181,12 +195,13 @@ var getPrimaryEquation = () => {
     let result = "";
 
     result += "\\dot{\\rho}=c_1";
-    if (c1Exp.level == 1) result += "^{1.15}";
+    if (c1Exp.level == 1) result += "^{1.25}";
     result += "c_2+c_3q";
 
     if (terms.level > 0) result += "+c_4q^2";
     if (terms.level > 1) result += "+c_5q^3";
     if (terms.level > 2) result += "+c_6q^4";
+    if (terms.level > 3) result += "+c_7q^5";
 
     return result;
 }
@@ -210,8 +225,8 @@ var getSecondaryEquation = () => {
 
 var getTertiaryEquation = () => "q=" + q.toString();
 
-var getPublicationMultiplier = (tau) => tau.pow(0.5);
-var getPublicationMultiplierFormula = (symbol) => "\\" + symbol + "^{0.5}"; // rimettere come prima (t ^ 0.165 / 4)
+var getPublicationMultiplier = (tau) => tau.pow(0.165) / 4 * 1e50;
+var getPublicationMultiplierFormula = (symbol) => "\\frac{" + symbol + "^{0.165}}{4}"; // rimettere come prima (t ^ 0.165 / 4)
 var getTau = () => currency.value;
 var get2DGraphValue = () => currency.value.sign * (BigNumber.ONE + currency.value.abs()).log10().toNumber();
 
@@ -221,6 +236,7 @@ var getC3 = (level) => BigNumber.TWO.pow(level);
 var getC4 = (level) => BigNumber.THREE.pow(level);
 var getC5 = (level) => BigNumber.FIVE.pow(level);
 var getC6 = (level) => BigNumber.TEN.pow(level);
+var getC7 = (level) => BigNumber.FIFTEEN.pow(level);
 var getQ1 = (level) => Utils.getStepwisePowerSum(level, 2, 10, 0);
 var getQ2 = (level) => BigNumber.TWO.pow(level);
 var getC1Exp = (level) => BigNumber.from(1 + level * 0.15);
