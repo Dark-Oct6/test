@@ -79,9 +79,9 @@ var init = () => {
 
     // c7
     {
-        let getDesc = (level) => "c_7=10^{" + level + "}";
+        let getDesc = (level) => "c_7=100^{" + level + "}";
         let getInfo = (level) => "c_7=" + getC7(level).toString(0);
-        c7 = theory.createUpgrade(6, currency, new ExponentialCost(1e14, Math.log2(100)));
+        c7 = theory.createUpgrade(6, currency, new ExponentialCost(1e100, Math.log2(2000)));
         c7.getDescription = (amount) => Utils.getMath(getDesc(c7.level));
         c7.getInfo = (amount) => Utils.getMathTo(getInfo(c7.level), getInfo(c7.level + amount));
         c7.isAvailable = false;
@@ -236,7 +236,7 @@ var getC3 = (level) => BigNumber.TWO.pow(level);
 var getC4 = (level) => BigNumber.THREE.pow(level);
 var getC5 = (level) => BigNumber.FIVE.pow(level);
 var getC6 = (level) => BigNumber.TEN.pow(level);
-var getC7 = (level) => new BigNumber(15).pow(level);
+var getC7 = (level) => BigNumber.HUNDRED.pow(level);
 var getQ1 = (level) => Utils.getStepwisePowerSum(level, 2, 10, 0);
 var getQ2 = (level) => BigNumber.TWO.pow(level);
 var getC1Exp = (level) => BigNumber.from(1 + level * 0.15);
