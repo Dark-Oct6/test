@@ -236,7 +236,7 @@ var getC3 = (level) => BigNumber.TWO.pow(level);
 var getC4 = (level) => BigNumber.THREE.pow(level);
 var getC5 = (level) => BigNumber.FIVE.pow(level);
 var getC6 = (level) => BigNumber.TEN.pow(level);
-var getC7 = (level) => BigNumber.FIFTEEN.pow(level);
+var getC7 = (level) => new BigNumber(15).pow(level);
 var getQ1 = (level) => Utils.getStepwisePowerSum(level, 2, 10, 0);
 var getQ2 = (level) => BigNumber.TWO.pow(level);
 var getC1Exp = (level) => BigNumber.from(1 + level * 0.15);
